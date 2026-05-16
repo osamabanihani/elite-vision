@@ -7,6 +7,8 @@ import productRouter from "./routes/productRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import uploadRouter from "./routes/uploadRoutes.js";
+import cors from 'cors';
+
 
 dotenv.config();
 
@@ -20,6 +22,16 @@ mongoose
   });
 
 const app = express();
+app.use(
+  cors({
+    origin: [
+      'https://elite-vision-sand.vercel.app',
+      'https://elite-vision-git-main-banihanihere-projects.vercel.app',
+      'http://localhost:3000',
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
