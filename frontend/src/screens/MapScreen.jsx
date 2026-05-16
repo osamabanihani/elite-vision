@@ -18,9 +18,10 @@ export default function MapScreen() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
   const navigate = useNavigate();
+
   const [googleApiKey, setGoogleApiKey] = useState('');
   const [center, setCenter] = useState(defaultLocation);
-  const [location, setLocation] = useState(center);
+  const [location, setLocation] = useState(defaultLocation);
 
   const mapRef = useRef(null);
   const placeRef = useRef(null);
@@ -28,50 +29,58 @@ export default function MapScreen() {
 
   const getUserCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation os not supported by this browser');
-    } else {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCenter({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      });
+      alert('Geolocation is not supported by this browser');
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const currentLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+
+      setCenter(currentLocation);
+      setLocation(currentLocation);
+    });
   };
+
   useEffect(() => {
-    const fetch = async () => {
+    const fetchGoogleApiKey = async () => {
       const { data } = await axios('/api/keys/google', {
-        headers: { Authorization: `BEARER ${userInfo.token}` },
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       });
+
       setGoogleApiKey(data.key);
       getUserCurrentLocation();
     };
 
-    fetch();
+    fetchGoogleApiKey();
+
     ctxDispatch({
       type: 'SET_FULLBOX_ON',
     });
-  }, [ctxDispatch]);
+  }, [ctxDispatch, userInfo.token]);
 
   const onLoad = (map) => {
     mapRef.current = map;
   };
+
   const onIdle = () => {
-    setLocation({
-      lat: mapRef.current.center.lat(),
-      lng: mapRef.current.center.lng(),
-    });
+    if (mapRef.current) {
+      setLocation({
+        lat: mapRef.current.center.lat(),
+        lng: mapRef.current.center.lng(),
+      });
+    }
   };
 
   const onLoadPlaces = (place) => {
     placeRef.current = place;
   };
+
   const onPlacesChanged = () => {
     const place = placeRef.current.getPlaces()[0].geometry.location;
+
     setCenter({ lat: place.lat(), lng: place.lng() });
     setLocation({ lat: place.lat(), lng: place.lng() });
   };
@@ -81,7 +90,8 @@ export default function MapScreen() {
   };
 
   const onConfirm = () => {
-    const places = placeRef.current.getPlaces() || [{}];
+    const places = placeRef.current?.getPlaces() || [{}];
+
     ctxDispatch({
       type: 'SAVE_SHIPPING_ADDRESS_MAP_LOCATION',
       payload: {
@@ -93,14 +103,16 @@ export default function MapScreen() {
         googleAddressId: places[0].id,
       },
     });
-    toast.success('location selected successfully.');
+
+    toast.success('Location selected successfully.');
     navigate('/shipping');
   };
+
   return (
     <div className="full-box">
       <LoadScript libraries={libs} googleMapsApiKey={googleApiKey}>
         <GoogleMap
-          id="smaple-map"
+          id="sample-map"
           mapContainerStyle={{ height: '100%', width: '100%' }}
           center={center}
           zoom={15}
@@ -112,13 +124,14 @@ export default function MapScreen() {
             onPlacesChanged={onPlacesChanged}
           >
             <div className="map-input-box">
-              <input type="text" placeholder="Enter your address"></input>
+              <input type="text" placeholder="Enter your address" />
               <Button type="button" onClick={onConfirm}>
                 Confirm
               </Button>
             </div>
           </StandaloneSearchBox>
-          <Marker position={location} onLoad={onMarkerLoad}></Marker>
+
+          <Marker position={location} onLoad={onMarkerLoad} />
         </GoogleMap>
       </LoadScript>
     </div>
