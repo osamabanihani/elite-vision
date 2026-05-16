@@ -14,7 +14,6 @@ import OrderScreen from './screens/OrderScreen.jsx';
 import OrderHistoryScreen from './screens/OrderHistoryScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
 import SearchScreen from './screens/SearchScreen.jsx';
-import WishlistScreen from './screens/WishlistScreen.jsx';
 import DashboardScreen from './screens/DashboardScreen.jsx';
 import ProductListScreen from './screens/ProductListScreen.jsx';
 import ProductEditScreen from './screens/ProductEditScreen.jsx';
@@ -46,7 +45,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
-  const { fullBox, cart, userInfo, wishlist } = state;
+  const { fullBox, cart, userInfo } = state;
 
   const signoutHandler = () => {
     ctxDispatch({ type: 'USER_SIGNOUT' });
@@ -112,15 +111,6 @@ function App() {
                     {cart.cartItems.length > 0 && (
                       <Badge pill bg="danger">
                         {cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
-                      </Badge>
-                    )}
-                  </Link>
-
-                  <Link to="/wishlist" className="nav-link">
-                    Wishlist
-                    {wishlist.wishlistItems.length > 0 && (
-                      <Badge pill bg="warning" text="dark">
-                        {wishlist.wishlistItems.length}
                       </Badge>
                     )}
                   </Link>
@@ -206,7 +196,6 @@ function App() {
             <Routes>
               <Route path="/product/:slug" element={<ProductScreen />} />
               <Route path="/cart" element={<CartScreen />} />
-              <Route path="/wishlist" element={<WishlistScreen />} />
               <Route path="/search" element={<SearchScreen />} />
               <Route path="/signin" element={<SigninScreen />} />
               <Route path="/signup" element={<SignupScreen />} />
