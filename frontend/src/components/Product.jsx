@@ -12,7 +12,10 @@ function Product(props) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const {
     cart: { cartItems },
+    wishlist: { wishlistItems },
   } = state;
+
+  const existWishlistItem = wishlistItems.find((x) => x._id === product._id);
 
   const addToCartHandler = async (item) => {
     const existItem = cartItems.find((x) => x._id === product._id);
@@ -26,6 +29,14 @@ function Product(props) {
       type: 'CART_ADD_ITEM',
       payload: { ...item, quantity },
     });
+  };
+
+  const addToWishlistHandler = () => {
+    ctxDispatch({ type: 'WISHLIST_ADD_ITEM', payload: product });
+  };
+
+  const removeFromWishlistHandler = () => {
+    ctxDispatch({ type: 'WISHLIST_REMOVE_ITEM', payload: product });
   };
 
   return (
@@ -45,6 +56,23 @@ function Product(props) {
           </Button>
         ) : (
           <Button onClick={() => addToCartHandler(product)}>Add to cart</Button>
+        )}
+        {existWishlistItem ? (
+          <Button
+            variant="outline-secondary"
+            className="ms-2 mt-2"
+            onClick={removeFromWishlistHandler}
+          >
+            Remove from wishlist
+          </Button>
+        ) : (
+          <Button
+            variant="outline-secondary"
+            className="ms-2 mt-2"
+            onClick={addToWishlistHandler}
+          >
+            Save to wishlist
+          </Button>
         )}
       </Card.Body>
     </Card>
