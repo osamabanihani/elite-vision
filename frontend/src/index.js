@@ -7,6 +7,9 @@ import './index.css';
 import App from './App.jsx';
 import reportWebVitals from './reportWebVitals';
 import { StoreProvider } from './Store';
+import axios from 'axios';
+
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || '';
 
 const root = createRoot(document.getElementById('root'));
 
